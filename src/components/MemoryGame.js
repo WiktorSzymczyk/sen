@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const MemoryGame = () => {
   const [cards, setCards] = useState([]);
@@ -7,14 +8,11 @@ const MemoryGame = () => {
   const [disabled, setDisabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-  const [question, setQuestion] = useState(""); // Store the question
-  const [options, setOptions] = useState([]); // Store the multiple choice options
-  const [correctAnswer, setCorrectAnswer] = useState(""); // Store correct answer
-  const [selectedAnswer, setSelectedAnswer] = useState(""); // Store user's answer
-  const [pokemonImage, setPokemonImage] = useState(""); // Store the Pokémon image
-  const [questionAsked, setQuestionAsked] = useState(false); // Track if the question has been answered
+  const [gameStarted, setGameStarted] = useState(false);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const audioRef = useRef(null);
+  const navigate = useNavigate(); // Declare navigate hook
 
-  // Fetch 6 random Pokémon images
   const fetchPokemonImages = async () => {
     setLoading(true);
     const pokemonData = [];
@@ -29,7 +27,6 @@ const MemoryGame = () => {
             pokemonData.push({
               id: data.id,
               name: data.name,
-              color: data.color, // Add color information
               src: data.sprites.front_default,
             });
           })
@@ -41,22 +38,18 @@ const MemoryGame = () => {
     return pokemonData;
   };
 
-  // Initialize the cards
   const initializeCards = async () => {
     const images = await fetchPokemonImages();
     const allPairs = [...images, ...images];
     const shuffledCards = allPairs
       .sort(() => Math.random() - 0.5)
-      .map((card) => ({ ...card, id: Math.random() }));
+      .map((card, index) => ({ ...card, uniqueId: `${card.id}-${index}` }));
 
     setCards(shuffledCards);
     setFlippedCards([]);
     setMatchedCards([]);
     setGameOver(false);
-    setQuestion(""); // Reset question when reloading
-    setOptions([]); // Reset options when reloading
-    setPokemonImage(""); // Reset Pokémon image when reloading
-    setQuestionAsked(false); // Reset the question state
+    setGameStarted(false);
   };
 
   useEffect(() => {
@@ -64,145 +57,109 @@ const MemoryGame = () => {
   }, []);
 
   const handleFlip = (card) => {
-    if (disabled) return;
-    if (flippedCards.length < 2 && !flippedCards.includes(card.id)) {
-      setFlippedCards((prev) => [...prev, card.id]);
-    }
-  };
+    if (disabled || flippedCards.includes(card.uniqueId)) return;
 
-  useEffect(() => {
-    if (flippedCards.length === 2) {
+    setFlippedCards((prev) => [...prev, card.uniqueId]);
+
+    if (flippedCards.length === 1) {
       setDisabled(true);
-      const [firstCard, secondCard] = flippedCards.map((id) =>
-        cards.find((card) => card.id === id)
-      );
 
-      // Set a trivia question based on the first flipped card
+      const firstCard = cards.find((c) => c.uniqueId === flippedCards[0]);
+      const secondCard = card;
+
       if (firstCard.name === secondCard.name) {
         setMatchedCards((prev) => [...prev, firstCard.name]);
         setFlippedCards([]);
         setDisabled(false);
       } else {
-        // Show question
-        const questionText = `What color is ${firstCard.name}?`;
-        const correctAnswer = firstCard.color;
-        const options = generateOptions(correctAnswer, firstCard.color);
-
-        setQuestion(questionText);
-        setCorrectAnswer(correctAnswer);
-        setOptions(options);
-        setPokemonImage(firstCard.src); // Set the Pokémon image to display
-        setQuestionAsked(true); // Mark that the question was asked
         setTimeout(() => {
-          setFlippedCards([]); // Reset flipped cards after delay
+          setFlippedCards([]);
           setDisabled(false);
         }, 1000);
       }
     }
-  }, [flippedCards, cards]);
-
-  const generateOptions = (correctAnswer, color) => {
-    const colors = ['red', 'green', 'blue', 'yellow', 'black', 'purple']; // Example options
-    const shuffledColors = colors.sort(() => Math.random() - 0.5);
-    const options = shuffledColors.slice(0, 3);
-    options.push(correctAnswer);
-    return options.sort(() => Math.random() - 0.5); // Shuffle options
   };
 
-  const handleAnswer = (answer) => {
-    setSelectedAnswer(answer);
-    if (answer === correctAnswer) {
-      // Answer is correct
-      setMatchedCards((prev) => [...prev, correctAnswer]);
-      setFlippedCards([]);
-      setQuestion(""); // Hide the question box
-      setOptions([]); // Clear the options
-      setPokemonImage(""); // Remove the image
-      setQuestionAsked(false); // Reset question asked state
-    } else {
-      // Answer is incorrect, reset flipped cards
-      setTimeout(() => {
-        setFlippedCards([]);
-        setQuestion(""); // Hide the question box
-        setOptions([]); // Clear the options
-        setPokemonImage(""); // Remove the image
-        setQuestionAsked(false); // Reset question asked state
-        setDisabled(false); // Enable clicking on cards again
-      }, 1000);
-    }
-  };
-
-  // Check if game is over (all pairs matched)
   useEffect(() => {
     if (matchedCards.length === cards.length / 2) {
       setGameOver(true);
     }
   }, [matchedCards, cards]);
 
-  return (
-      <div style={styles.container}>
-        <div><button onClick={MemoryGame}>Page</button></div>
-      <h1 style={styles.title}>Pokémon Memory Game</h1>
-      <button style={styles.reloadButton} onClick={initializeCards}>
-        Reload Game
-      </button>
-      {loading ? (
-        <h2 style={styles.loadingText}>Loading Pokémon...</h2>
-      ) : (
-        <div style={styles.grid}>
-          {cards.map((card) => (
-            <div
-              key={card.id}
-              style={{
-                ...styles.card,
-                ...(flippedCards.includes(card.id) || matchedCards.includes(card.name)
-                  ? styles.flipped
-                  : {}),
-              }}
-              onClick={() => handleFlip(card)}
-            >
-              {flippedCards.includes(card.id) || matchedCards.includes(card.name) ? (
-                <img src={card.src} alt={card.name} style={styles.image} />
-              ) : (
-                <div style={styles.cover}></div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+  const startGame = () => {
+    // Play the music
+    if (audioRef.current) {
+      audioRef.current.play().catch((err) => {
+        console.error('Error playing audio:', err);
+      });
+    }
+    setIsMusicPlaying(true);
 
-      {/* Display Question if Two Cards are Flipped */}
-      {questionAsked && (
-        <div style={styles.questionBox}>
-          <h2 style={styles.questionText}>{question}</h2>
-          {/* Display the Pokémon image below the question */}
-          <img src={pokemonImage} alt="Pokémon" style={styles.pokemonImage} />
-          <div style={styles.optionsContainer}>
-            {options.map((option, index) => (
-              <button
-                key={index}
-                style={styles.optionButton}
-                onClick={() => handleAnswer(option)}
+    // Reveal all cards briefly
+    setFlippedCards(cards.map((card) => card.uniqueId));
+
+    setTimeout(() => {
+      setFlippedCards([]);
+      setGameStarted(true);
+    }, 2000); // Cards are revealed for 2 seconds
+  };
+
+  const handleSwitchToJumping = () => {
+    // Navigate to Jumping Game
+    navigate('/jumping');
+  };
+
+  return (
+    <div>
+      <div style={styles.container}>
+        <audio ref={audioRef} src="/sounds/background.mp3" loop />
+        <h1 style={styles.title}>Pokémon Memory Game</h1>
+
+        {!gameStarted && !gameOver && (
+          <button style={styles.startGameButton} onClick={startGame}>
+            Play Game
+          </button>
+        )}
+
+        {loading ? (
+          <h2 style={styles.loadingText}>Loading Pokémon...</h2>
+        ) : (
+          <div style={styles.grid}>
+            {cards.map((card) => (
+              <div
+                key={card.uniqueId}
+                style={{
+                  ...styles.card,
+                  ...(flippedCards.includes(card.uniqueId) || matchedCards.includes(card.name)
+                    ? styles.flipped
+                    : {}),
+                  ...(matchedCards.includes(card.name) ? styles.matched : {}),
+                }}
+                onClick={() => (gameStarted ? handleFlip(card) : null)}
               >
-                {option}
-              </button>
+                {flippedCards.includes(card.uniqueId) || matchedCards.includes(card.name) ? (
+                  <img src={card.src} alt={card.name} style={styles.image} />
+                ) : (
+                  <div style={styles.cover}></div>
+                )}
+              </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Show "You Won!" bar in the middle of the screen */}
-      {gameOver && (
-        <div style={styles.gameOverBar}>
-          <h2 style={styles.gameOverText}>You Won!</h2>
-        </div>
-      )}
+        {gameOver && (
+          <div style={styles.gameOverBar}>
+            <h2 style={styles.gameOverText}>You Won!</h2>
+            <button style={styles.playAgainButton} onClick={initializeCards}>
+              Play Again
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-
-// Styles
 const styles = {
   container: {
     display: 'flex',
@@ -222,17 +179,17 @@ const styles = {
     textShadow: '2px 2px 4px #3B4CCA',
     marginBottom: '20px',
   },
-  reloadButton: {
+  startGameButton: {
     fontFamily: '"Press Start 2P", cursive',
     padding: '12px 24px',
-    margin: '20px',
     cursor: 'pointer',
     fontSize: '16px',
-    backgroundColor: '#FF0000',
+    backgroundColor: '#3B4CCA',
     color: '#fff',
-    border: '2px solid #3B4CCA',
+    border: '2px solid #FFDE00',
     borderRadius: '12px',
-    boxShadow: '0px 4px #3B4CCA',
+    boxShadow: '0px 4px #FFDE00',
+    marginTop: '20px',
     transition: 'transform 0.2s ease',
   },
   loadingText: {
@@ -255,9 +212,15 @@ const styles = {
     borderRadius: '10px',
     overflow: 'hidden',
     border: '3px solid #3B4CCA',
+    transform: 'rotateY(180deg)',
+    transition: 'transform 0.6s',
   },
   flipped: {
     transform: 'rotateY(0deg)',
+  },
+  matched: {
+    border: '3px solid #FFD700',
+    boxShadow: '0px 0px 20px #FFD700',
   },
   cover: {
     width: '100%',
@@ -267,6 +230,7 @@ const styles = {
     top: 0,
     left: 0,
     borderRadius: '10px',
+    boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.3)',
   },
   image: {
     width: '100%',
@@ -279,56 +243,26 @@ const styles = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    padding: '20px',
     textAlign: 'center',
-    zIndex: 1000,
+    backgroundColor: '#FFDE00',
+    padding: '20px',
+    borderRadius: '15px',
   },
   gameOverText: {
     fontFamily: '"Press Start 2P", cursive',
-    fontSize: '48px',
-    color: '#FFDE00',
-    textShadow: '2px 2px 4px #3B4CCA',
+    fontSize: '24px',
+    color: '#3B4CCA',
   },
-  questionBox: {
-    position: 'absolute',
-    top: '30%',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '10px',
-    textAlign: 'center',
-    boxShadow: '0px 4px 10px rgba(0,0,0,0.5)',
-    zIndex: 1000,
-  },
-  questionText: {
+  playAgainButton: {
     fontFamily: '"Press Start 2P", cursive',
-    fontSize: '22px',
-    marginBottom: '10px',
-  },
-  pokemonImage: {
-    width: '100px',
-    height: '100px',
-    marginBottom: '10px',
-  },
-  optionsContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  optionButton: {
-    fontFamily: '"Press Start 2P", cursive',
-    padding: '10px 20px',
-    margin: '10px',
+    padding: '12px 24px',
     cursor: 'pointer',
-    fontSize: '18px',
-    backgroundColor: '#FF0000',
+    fontSize: '16px',
+    backgroundColor: '#3B4CCA',
     color: '#fff',
-    border: '2px solid #3B4CCA',
+    border: '2px solid #FFDE00',
     borderRadius: '12px',
-    transition: 'transform 0.2s ease',
+    marginTop: '10px',
   },
 };
 
