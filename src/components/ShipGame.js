@@ -64,7 +64,7 @@ function ShipGame() {
   return (
     <div className="game-container" ref={gameRef}>
       <h1>Steer the Ship!</h1>
-      <p>Use the left and right arrow keys to steer the ship.</p>
+      {/* <p>Use the left and right arrow keys to steer the ship.</p>
       {gameOver ? (
         <div className="game-over">
           <h2>Game Over!</h2>
@@ -88,7 +88,7 @@ function ShipGame() {
             <img src="/images/ship.png" alt="Ship" />
           </div>
         </>
-      )}
+      )} */}
     </div>
   );
 }

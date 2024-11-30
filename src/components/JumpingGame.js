@@ -51,7 +51,7 @@ const JumpingGame = () => {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>Jumping Game</h1>
+      {/* <h1 style={styles.title}>Jumping Game</h1>
       <p>Score: {score}</p>
       <div
         style={{
@@ -76,7 +76,7 @@ const JumpingGame = () => {
       )}
       <button onClick={handleJump} style={styles.jumpButton}>
         Jump
-      </button>
+      </button> */}
     </div>
   );
 };
