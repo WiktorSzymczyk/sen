@@ -40,7 +40,7 @@ const ShapeGuessingGame = () => {
       setIsWaiting(true); // Set waiting state
       setTimeout(() => {
         initializeGame(); // Load the next shape after 5 seconds
-      }, 5000);
+      }, 2000);
     } else {
       setMessage('Wrong! Try again. 😢');
     }
