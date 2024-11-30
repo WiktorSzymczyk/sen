@@ -49,7 +49,7 @@ const MoneyGame = () => {
       setMessage('Well done! 🎉 You matched the amount!');
       setIsComplete(true);
     } else if (newTotal > targetAmount) {
-      setMessage('Oops! That’s too much. Try again.');
+      setMessage('Try again.');
       setSelectedCoins({ 1: 0, 2: 0 }); // Reset selected coins if over the target
     } else {
       setMessage(`You're at ${newTotal}p. Keep going!`);
