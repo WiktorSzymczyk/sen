@@ -111,7 +111,7 @@ const MemoryGame = () => {
 
   return (
     <div className="container">
-      <audio ref={audioRef} src="/sounds/background.mp3" loop />
+      {/* <audio ref={audioRef} src="/sounds/background.mp3" loop /> */}
       <h1 className="title">Pokémon Memory Game</h1>
 
       {!gameStarted && !gameOver && (
