@@ -30,15 +30,15 @@ function App() {
           <NavLink to="/memory" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
             Memory Game
           </NavLink>
-          <NavLink to="/ship" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
+          {/* <NavLink to="/ship" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
             Ship Game
-          </NavLink>
-          <NavLink to="/jumping" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
+          </NavLink> */}
+          {/* <NavLink to="/jumping" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
             Jumping Game
-          </NavLink>
-          <NavLink to="/continents" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
+          </NavLink> */}
+          {/* <NavLink to="/continents" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
             Continents
-          </NavLink>
+          </NavLink> */}
           <NavLink to="/shapes" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
             Shapes
           </NavLink>
