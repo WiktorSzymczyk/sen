@@ -23,13 +23,15 @@ body {
   top: 0;
   left: 0;
   width: 100%;
+  height: 100vh;
   max-height: 0; /* Hidden initially */
   overflow: hidden;
-  transition: max-height 0.3s ease-in-out;
+  transition: 100vh 0.3s ease-in-out;
+  z-index: 90;
 }
 
 .navbar.open {
-  max-height: 300px; /* Adjust based on your desired height */
+  max-height: 100vh; /* Adjust based on your desired height */
 }
 
 .link {
