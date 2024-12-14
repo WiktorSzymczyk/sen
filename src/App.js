@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import MemoryGame from './components/MemoryGame';
 import JumpingGame from './components/JumpingGame';
@@ -10,6 +10,12 @@ import './App.css'; // Import the external CSS
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (window.location.hostname === 'localhost' && window.location.port === '3000') {
+      setMenuOpen(true);
+    }
+  }, []);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -42,7 +48,7 @@ function App() {
           <NavLink to="/shapes" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
             Shapes
           </NavLink>
-          <NavLink to="/money" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
+          <NavLink to="/money" className={({ isActive }) => (isActive ? 'link active' : 'link')} >
             Money Game
           </NavLink>
         </div>
