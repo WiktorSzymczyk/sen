@@ -42,9 +42,9 @@ function App() {
           {/* <NavLink to="/jumping" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
             Jumping Game
           </NavLink> */}
-          {/* <NavLink to="/continents" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
+          <NavLink to="/continents" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
             Continents
-          </NavLink> */}
+          </NavLink>
           <NavLink to="/shapes" className={({ isActive }) => (isActive ? 'link active' : 'link')}>
             Shapes
           </NavLink>

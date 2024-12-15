@@ -1,3 +1,4 @@
+import { image } from "d3";
 import React, { useState, useEffect } from "react";
 
 const MoneyGame = () => {
@@ -65,6 +66,7 @@ const MoneyGame = () => {
       <p style={styles.instructions}>
         Click the coins on the **left** to toggle enable/disable coins in the **middle**. Use the coins in the middle to match the target amount.
       </p>
+      <img src={require('../shopAssets/shop.png')} alt="Shop" style={styles.shopImage} />
 
       {/* Display the target amount */}
       <div style={styles.target}>
@@ -164,6 +166,7 @@ const styles = {
     alignItems: "center",
     fontFamily: '"Arial", sans-serif',
     padding: "20px",
+    paddingTop: "5%",
     textAlign: "center",
     position: "relative",
   },
@@ -247,6 +250,13 @@ const styles = {
     borderRadius: "5px",
     cursor: "pointer",
     transition: "transform 0.2s ease",
+  },
+  shopImage: {
+    height: "25vh"
+  },
+  shopItemImage: {
+    position: "absolute",
+    height: "10vh",
   },
 };
 
